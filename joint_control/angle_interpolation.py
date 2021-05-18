@@ -71,7 +71,7 @@ class AngleInterpolationAgent(PIDAgent):
             self.set_time = True    
             self.time = perception.time     #initialize start time if not started
         
-        current_time = perception.time - self.time -4  #calculate current time from start time     
+        current_time = perception.time - self.time -1  #calculate current time from start time     
         
         if (current_time<0):      #skip the first timesteps to avoid executing angle interpolation in mid air
             return target_joints
@@ -88,17 +88,17 @@ class AngleInterpolationAgent(PIDAgent):
                     joint_angles.append(i[0])  #get joint angles from keyframes array
                 if(len_time_seq<=3):    #avoid interpolation with splrep with less than 4 values
                     joint_name = names[joint] 
-                    if names[joint] == "RHipYawPitch":
-                        joint_name = "LHipYawPitch"
                     target_joints[joint_name] = np.interp(current_time, joint_times, joint_angles) #interpolate with numpy
                 else:       #enough values to make cubic spline interpolation
                     spl = interpolate.splrep(joint_times, joint_angles)   # calculate interpolation function for time and angle values 
                     #f = CubicSpline(joint_times, joint_angles, bc_type='natural',extrapolate=True)
                     joint_name = names[joint] 
-                    if names[joint] == "RHipYawPitch":
-                        joint_name = "LHipYawPitch"
                     target_joints[joint_name] = interpolate.splev(current_time, spl)    #save angle calculated from spline and current time in target_joints 
                     #target_joints[joint_name] = f(current_time)
+        
+        if "LHipYawPitch" in target_joints:
+                target_joints["RHipYawPitch"] = target_joints["LHipYawPitch"]
+        
         return target_joints
         
     

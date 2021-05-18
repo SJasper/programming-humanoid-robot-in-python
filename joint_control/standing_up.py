@@ -18,11 +18,9 @@ class StandingUpAgent(PostureRecognitionAgent):
     def standing_up(self):
         posture = self.posture
         #returns the predicted postrue
-        if posture in ['Back','Sit','Left','Headback','Right']: #Left, 'Headback', 'Sit', 'Right'
-            print("right back to stand")
+        if posture in ['Back','Sit','Left','Headback','Right']: # Left, 'Headback', 'Sit', 'Right'
             self.keyframes = rightBackToStand()
         elif posture in ['Belly','Frog','Crouch']:
-            print("else")
             self.keyframes = rightBellyToStand()
 
 
