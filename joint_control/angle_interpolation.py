@@ -28,6 +28,7 @@ from keyframes import leftBellyToStand
 from keyframes import wipe_forehead
 from scipy import interpolate
 import numpy as np
+from scipy.interpolate import CubicSpline
 
 class AngleInterpolationAgent(PIDAgent):
     def __init__(self, simspark_ip='localhost',
@@ -92,11 +93,12 @@ class AngleInterpolationAgent(PIDAgent):
                     target_joints[joint_name] = np.interp(current_time, joint_times, joint_angles) #interpolate with numpy
                 else:       #enough values to make cubic spline interpolation
                     spl = interpolate.splrep(joint_times, joint_angles)   # calculate interpolation function for time and angle values 
+                    #f = CubicSpline(joint_times, joint_angles, bc_type='natural',extrapolate=True)
                     joint_name = names[joint] 
                     if names[joint] == "RHipYawPitch":
                         joint_name = "LHipYawPitch"
                     target_joints[joint_name] = interpolate.splev(current_time, spl)    #save angle calculated from spline and current time in target_joints 
-
+                    #target_joints[joint_name] = f(current_time)
         return target_joints
         
     
