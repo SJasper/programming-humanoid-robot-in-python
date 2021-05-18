@@ -86,18 +86,24 @@ class AngleInterpolationAgent(PIDAgent):
                 for i in keys[joint]:
                     joint_angles.append(i[0])  #get joint angles from keyframes array
                 if(len_time_seq<=3):    #avoid interpolation with splrep with less than 4 values
-                    target_joints[names[joint]] = np.interp(current_time, joint_times, joint_angles) #interpolate with numpy
+                    joint_name = names[joint] 
+                    if names[joint] == "RHipYawPitch":
+                        joint_name = "LHipYawPitch"
+                    target_joints[joint_name] = np.interp(current_time, joint_times, joint_angles) #interpolate with numpy
                 else:       #enough values to make cubic spline interpolation
                     spl = interpolate.splrep(joint_times, joint_angles)   # calculate interpolation function for time and angle values 
-                    target_joints[names[joint]] = interpolate.splev(current_time, spl)    #save angle calculated from spline and current time in target_joints 
+                    joint_name = names[joint] 
+                    if names[joint] == "RHipYawPitch":
+                        joint_name = "LHipYawPitch"
+                    target_joints[joint_name] = interpolate.splev(current_time, spl)    #save angle calculated from spline and current time in target_joints 
 
         return target_joints
         
     
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
-    agent.keyframes = wipe_forehead()  # CHANGE DIFFERENT KEYFRAMES
-    #agent.keyframes = rightBackToStand()  # CHANGE DIFFERENT KEYFRAMES
+    #agent.keyframes = wipe_forehead()  # CHANGE DIFFERENT KEYFRAMES
+    agent.keyframes = rightBackToStand()  # CHANGE DIFFERENT KEYFRAMES
     #agent.keyframes = leftBellyToStand()  # CHANGE DIFFERENT KEYFRAMES
     #agent.keyframes = dance()  # CHANGE DIFFERENT KEYFRAMES
     #agent.keyframes = hello()  # CHANGE DIFFERENT KEYFRAMES
