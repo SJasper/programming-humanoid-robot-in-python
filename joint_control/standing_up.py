@@ -9,20 +9,23 @@
 from recognize_posture import PostureRecognitionAgent
 from keyframes import rightBackToStand
 from keyframes import rightBellyToStand
-from keyframes import wipe_forehead
 
 class StandingUpAgent(PostureRecognitionAgent):
     def think(self, perception):
         self.standing_up()
         return super(StandingUpAgent, self).think(perception)
-
+        
     def standing_up(self):
         posture = self.posture
         #returns the predicted postrue
-        if posture in ['Left','Back', 'Headback', 'Sit', 'Right']:
-            self.keyframe = rightBackToStand()
-        else:        #posture in ['Crouch', 'Belly', 'Frog']:
-            self.keyframe = wipe_forehead()
+        if posture in ['Back','Sit']: #Left, 'Headback', 'Sit', 'Right'
+            print("right back to stand")
+            self.keyframes = rightBackToStand()
+
+        elif posture in ['Belly']: #Frog crouch 
+            print("else")
+            self.keyframes = rightBellyToStand()
+
 
 class TestStandingUpAgent(StandingUpAgent):
     '''this agent turns off all motor to falls down in fixed cycles

@@ -35,9 +35,9 @@ class PIDController(object):
         self.e2 = np.zeros(size)
         # ADJUST PARAMETERS BELOW
         delay = 5
-        self.Kp = 11 #10  
-        self.Ki = 0.8 #0.7
-        self.Kd = -0.2 #-0.4  
+        self.Kp = 10 #4  
+        self.Ki = 0.7 #0.7
+        self.Kd = 0.1 #0.1  
         self.y = deque(np.zeros(size), maxlen=delay + 1)
 
     def set_delay(self, delay):

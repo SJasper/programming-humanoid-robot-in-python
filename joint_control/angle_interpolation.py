@@ -39,7 +39,7 @@ class AngleInterpolationAgent(PIDAgent):
         self.keyframes = ([], [], [])
         self.time = 0          #variable for saving start time
         self.set_time = False   #variable to check if starttime was set 
-
+        
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes, perception)
         self.target_joints.update(target_joints)
@@ -70,9 +70,9 @@ class AngleInterpolationAgent(PIDAgent):
             self.set_time = True    
             self.time = perception.time     #initialize start time if not started
         
-        current_time = perception.time - self.time   #calculate current time from start time     
+        current_time = perception.time - self.time -4  #calculate current time from start time     
         
-        if (current_time<0.5):      #skip the first timesteps to avoid executing angle interpolation in mid air
+        if (current_time<0):      #skip the first timesteps to avoid executing angle interpolation in mid air
             return target_joints
 
         num_joints = len(names)     #calculate number of joints to move  
