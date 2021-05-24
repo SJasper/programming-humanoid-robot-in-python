@@ -32,7 +32,7 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         # YOUR CODE HERE
         # Tried to implement jacobian 
 
-        # Orientaded on the code from inverse_kinematics_2d_jacobian.ipynb
+        # Based on the code from inverse_kinematics_2d_jacobian.ipynb
         # Robot appears and moves
         # Not sure if the result should be like this
          
