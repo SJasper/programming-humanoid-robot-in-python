@@ -14,6 +14,12 @@ from forward_kinematics import ForwardKinematicsAgent
 from numpy.matlib import identity
 
 
+from math import atan2
+import numpy as np
+from numpy import linalg
+
+
+
 class InverseKinematicsAgent(ForwardKinematicsAgent):
     def inverse_kinematics(self, effector_name, transform):
         '''solve the inverse kinematics
@@ -24,6 +30,58 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         '''
         joint_angles = []
         # YOUR CODE HERE
+        # tried to implement jacobian because it should be "easy to implemente"
+        # used the code from inverse_kinematics_2d_jacobian.ipynb
+        # robot appears and does something
+        # i dont know if it should be like this, maybe some things are wrong
+         
+        lambda_ = 1
+        max_step = 0.1
+
+        joint_angles = np.ones(len(self.chains[effector_name]))
+        #for name in self.chains[effector_name]:
+        #    joint_angles[name] = self.perception.joint[name]
+
+        def from_trans(m):
+            '''get x, y, theta from transform matrix'''
+
+            #decompose rotaton matrix 
+            theta_x, theta_y, theta_z = 0, 0, 0
+            if m[0, 0] == 1:
+                theta_x = atan2(m[2, 1], m[1, 1])
+            elif m[1, 1] == 1:
+                theta_y = atan2(m[0, 2], m[0, 0])
+            elif m[2, 2] == 1:
+                theta_z = atan2(m[1, 0], m[0, 0])
+            return np.array([ m[3, 0], m[3, 1],  m[3, 2], theta_x, theta_y, theta_z])
+
+        target = np.array(from_trans(transform)).T
+        
+        for _ in range(1000):
+            Ts = [identity(len(self.chains[effector_name]))]
+            for name in self.chains[effector_name]:
+                Ts.append(self.transforms[name])
+
+            Te = np.array(from_trans(Ts[-1])).T
+
+            e = target - Te
+            e[e > max_step] = max_step
+            e[e < -max_step] = -max_step
+            
+            T = np.array([from_trans(i) for i in Ts[0:-1]]).T
+            J = Te - T
+            dT = Te - T
+
+            J[0, :] = dT[2, :] # x
+            J[1, :] = dT[0, :] # y
+            J[-1, :] = 1  # angular
+            
+            d_theta = lambda_ * (linalg.pinv(J) * e)
+            joint_angles += np.asarray(d_theta.T)[0]
+            
+            if np.linalg.norm(d_theta) < 1e-4:
+                break
+        
         return joint_angles
 
     def set_transforms(self, effector_name, transform):
@@ -31,12 +89,26 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         '''
         # YOUR CODE HERE
         self.keyframes = ([], [], [])  # the result joint angles have to fill in
-
+        joint_angles = self.inverse_kinematics(effector_name, transform)
+        name = []
+        time = []
+        angle = []
+        counter = 0
+        for joint in self.chains[effector_name]:
+            name.append(joint)     #append joint name
+            time.append([20.0])    #append time
+            angle.append([[joint_angles[counter], [0, 0, 0], [0, 0, 0]]]) #only the joint_angle is used by my interpolation method, therefore the other values should have no effect an can be set to 0 
+            counter += 1
+    
+        self.keyframes = (name, time, angle)  # the result joint angles have to fill i
+        print(name, time, angle)
+        
+ 
 if __name__ == '__main__':
     agent = InverseKinematicsAgent()
     # test inverse kinematics
     T = identity(4)
     T[-1, 1] = 0.05
     T[-1, 2] = 0.26
-    agent.set_transforms('LLeg', T)
+    agent.set_transforms('RLeg', T)
     agent.run()
