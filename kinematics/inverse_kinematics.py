@@ -96,8 +96,9 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         counter = 0
         for joint in self.chains[effector_name]:
             name.append(joint)     #append joint name
-            time.append([20.0])    #append time
-            angle.append([[joint_angles[counter], [0, 0, 0], [0, 0, 0]]]) #only the joint_angle is used by my interpolation method, therefore the other values should have no effect an can be set to 0 
+            time.append([0.0,5.0])    #append time
+            angle.append([[self.perception.joint[joint], [0., 0., 0.]], [joint_angles[counter], [0., 0., 0.]]])
+            #only the joint_angle is used by my interpolation method, therefore the other values should have no effect an can be set to 0 
             counter += 1
     
         self.keyframes = (name, time, angle)  # the result joint angles have to fill i
@@ -110,5 +111,5 @@ if __name__ == '__main__':
     T = identity(4)
     T[-1, 1] = 0.05
     T[-1, 2] = 0.26
-    agent.set_transforms('RLeg', T)
+    agent.set_transforms('LLeg', T)
     agent.run()
