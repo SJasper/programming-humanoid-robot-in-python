@@ -30,22 +30,22 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         '''
         joint_angles = []
         # YOUR CODE HERE
-        # tried to implement jacobian because it should be "easy to implemente"
-        # used the code from inverse_kinematics_2d_jacobian.ipynb
-        # robot appears and does something
-        # i dont know if it should be like this, maybe some things are wrong
+        # Tried to implement jacobian 
+
+        # Orientaded on the code from inverse_kinematics_2d_jacobian.ipynb
+        # Robot appears and moves
+        # Not sure if the result should be like this
          
         lambda_ = 1
         max_step = 0.1
 
         joint_angles = np.ones(len(self.chains[effector_name]))
-        #for name in self.chains[effector_name]:
-        #    joint_angles[name] = self.perception.joint[name]
+      
 
         def from_trans(m):
             '''get x, y, theta from transform matrix'''
 
-            #decompose rotaton matrix 
+            #decompose rotaton matrix, has the same functionallity like in the inverse_kinematics_2d_jacobian.ipynb
             theta_x, theta_y, theta_z = 0, 0, 0
             if m[0, 0] == 1:
                 theta_x = atan2(m[2, 1], m[1, 1])
@@ -55,7 +55,7 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
                 theta_z = atan2(m[1, 0], m[0, 0])
             return np.array([ m[3, 0], m[3, 1],  m[3, 2], theta_x, theta_y, theta_z])
 
-        target = np.array(from_trans(transform)).T
+        target = np.array(from_trans(transform)).T  
         
         for _ in range(1000):
             Ts = [identity(len(self.chains[effector_name]))]
@@ -101,7 +101,7 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
             #only the joint_angle is used by my interpolation method, therefore the other values should have no effect an can be set to 0 
             counter += 1
     
-        self.keyframes = (name, time, angle)  # the result joint angles have to fill i
+        self.keyframes = (name, time, angle) 
         print(name, time, angle)
         
  
@@ -111,5 +111,5 @@ if __name__ == '__main__':
     T = identity(4)
     T[-1, 1] = 0.05
     T[-1, 2] = 0.26
-    agent.set_transforms('LLeg', T)
+    agent.set_transforms('RLeg', T)
     agent.run()
