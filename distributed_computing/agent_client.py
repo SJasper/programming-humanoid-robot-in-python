@@ -60,7 +60,7 @@ class ClientAgent(object):
         e.g. return until keyframes are executed
         '''
         # YOUR CODE HERE
-        print("execute kexframes")
+        print("execute keyframes")
         return self.serverProxy.execute_keyframes(keyframes)
 
     def get_transform(self, name):
