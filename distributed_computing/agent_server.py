@@ -19,16 +19,8 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '
 from inverse_kinematics import InverseKinematicsAgent
 
 
-
-# Create server
-
 from SimpleXMLRPCServer import SimpleXMLRPCServer
-
-
-#Only to test xmlrpc server:
-#class XmlrpcHandler:
-#    def pow(self, from_int, to_int):
-#        return from_int**to_int
+import threading
 
 class ServerAgent(InverseKinematicsAgent):
     '''ServerAgent provides RPC service
@@ -58,9 +50,18 @@ class ServerAgent(InverseKinematicsAgent):
         '''excute keyframes, note this function is blocking call,
         e.g. return until keyframes are executed
         '''
-
-        # YOUR CODE HERE
-
+        print("Execute keyframes")
+        
+        #self.keyframes = keyframes
+        self.angle_interpolation(keyframes, self.perception)
+        while True:
+            if self.keyframes == {}:
+                break
+            print(len(keyframes))
+            print(len(keyframes[1]))
+            print(keyframes[1])
+            event.wait(1)            
+    
     def get_transform(self, name):
         '''get transform with given name
         '''
@@ -72,12 +73,14 @@ class ServerAgent(InverseKinematicsAgent):
         '''solve the inverse kinematics and control joints use the results
         '''
         print("Set transform")
-        self.transform[effector_name] = transform 
+        self.transform[effector_name] = transform  
         # YOUR CODE HERE
 
 if __name__ == '__main__':
     agent = ServerAgent()
     print("Start Server")
+    event = threading.Event()
+    # Create server
     server = SimpleXMLRPCServer(("localhost", 8000), allow_none = True)
     server.register_instance(agent)
     #server.register_instance(XmlrpcHandler)
@@ -85,6 +88,10 @@ if __name__ == '__main__':
     print("Shut down with STRG+C")
     server.register_introspection_functions()
     server.register_multicall_functions()
-    server.serve_forever()
+    
+    #server.serve_forever()
+    #tried to implement threading
+    thread = threading.Thread(target=server.serve_forever)  
+    thread.start()
     
     agent.run()
