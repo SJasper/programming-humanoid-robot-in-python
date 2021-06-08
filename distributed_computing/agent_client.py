@@ -39,7 +39,7 @@ class ClientAgent(object):
 
     def get_angle(self, joint_name):
         '''get sensor value of given joint'''
-        print("get angle")
+        print("get angle from: " + joint_name)
         return self.serverProxy.get_angle(joint_name)
 
     def set_angle(self, joint_name, angle):
@@ -81,6 +81,12 @@ class ClientAgent(object):
 if __name__ == '__main__':
     agent = ClientAgent()
     # TEST CODE HERE
-    print(agent.get_angle('HeadPitch'))
-    agent.execute_keyframes(wipe_forehead())
+    print(agent.get_angle('HeadPitch'))     #works perfekt
+    print(agent.get_angle('LShoulderRoll'))     #works perfekt
+    agent.set_angle('LShoulderRoll',1)     # works perfekt
+    print(agent.get_angle('LShoulderRoll'))     #works perfekt
+
+    print(agent.get_posture()) #returns error
+
+    #agent.execute_keyframes(wipe_forehead()) #not executing function and causes crash
 
