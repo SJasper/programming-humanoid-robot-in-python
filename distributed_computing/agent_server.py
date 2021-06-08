@@ -18,7 +18,7 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '
 
 from inverse_kinematics import InverseKinematicsAgent
 
-
+import time
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 import threading
 
@@ -43,7 +43,9 @@ class ServerAgent(InverseKinematicsAgent):
     def get_posture(self):
         '''return current posture of robot'''
         print("Get posture")
-        return self.recognize_posture()
+        
+        #return self.recognize_posture()
+        return self.posture()
         # YOUR CODE HERE
 
     def execute_keyframes(self, keyframes):
@@ -52,16 +54,16 @@ class ServerAgent(InverseKinematicsAgent):
         '''
         print("Execute keyframes")
         
-        #self.keyframes = keyframes
-        self.angle_interpolation(keyframes, self.perception)
-        while True:
-            if self.keyframes == {}:
-                break
-            print(len(keyframes))
-            print(len(keyframes[1]))
-            print(keyframes[1])
-            event.wait(1)            
-    
+        self.keyframes = keyframes
+        #self.angle_interpolation(keyframes, self.perception)
+        #while True:
+        #    if self.keyframes == {}:
+        #        break
+        #    print(len(keyframes))
+        #    print(len(keyframes[1]))
+        #    print(keyframes[1])
+        #self.run() 
+
     def get_transform(self, name):
         '''get transform with given name
         '''
@@ -79,7 +81,6 @@ class ServerAgent(InverseKinematicsAgent):
 if __name__ == '__main__':
     agent = ServerAgent()
     print("Start Server")
-    event = threading.Event()
     # Create server
     server = SimpleXMLRPCServer(("localhost", 8000), allow_none = True)
     server.register_instance(agent)
