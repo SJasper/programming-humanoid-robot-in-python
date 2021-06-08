@@ -8,7 +8,7 @@
 
 import weakref
 import xmlrpc.client
-
+import threading
 from keyframes import wipe_forehead
 
 class PostHandler(object):
@@ -19,11 +19,13 @@ class PostHandler(object):
 
     def execute_keyframes(self, keyframes):
         '''non-blocking call of ClientAgent.execute_keyframes'''
-        # YOUR CODE HERE
+        keyframe_thread = threading.Thread(target=self.serverProxy.execute_keyframes(keyframes))  
+        keyframe_thread.start()        
 
     def set_transform(self, effector_name, transform):
         '''non-blocking call of ClientAgent.set_transform'''
-        # YOUR CODE HERE
+        thread = threading.Thread(target=self.serverProxy.set_transform(effector_name, transform))  
+        thread.start()
 
 
 class ClientAgent(object):
@@ -38,18 +40,19 @@ class ClientAgent(object):
     def get_angle(self, joint_name):
         '''get sensor value of given joint'''
         print("get angle")
-
         return self.serverProxy.get_angle(joint_name)
 
     def set_angle(self, joint_name, angle):
         '''set target angle of joint for PID controller
         '''
+        print("set angle")
         return self.serverProxy.set_angle(joint_name, angle)
         # YOUR CODE HERE
 
     def get_posture(self):
         '''return current posture of robot'''
         # YOUR CODE HERE
+        print("get posture")
         return self.serverProxy.get_posture()
 
     def execute_keyframes(self, keyframes):
@@ -57,23 +60,27 @@ class ClientAgent(object):
         e.g. return until keyframes are executed
         '''
         # YOUR CODE HERE
+        print("execute kexframes")
         return self.serverProxy.execute_keyframes(keyframes)
 
     def get_transform(self, name):
         '''get transform with given name
         '''
+        print("get transform")
         return self.serverProxy.get_transform(name)
         # YOUR CODE HERE
 
     def set_transform(self, effector_name, transform):
         '''solve the inverse kinematics and control joints use the results
         '''
+        print("set transform")
         return self.serverProxy.set_transform(effector_name, transform)
         # YOUR CODE HERE
+
 
 if __name__ == '__main__':
     agent = ClientAgent()
     # TEST CODE HERE
     print(agent.get_angle('HeadPitch'))
-    #agent.execute_keyframes(wipe_forehead())
+    agent.execute_keyframes(wipe_forehead())
 
