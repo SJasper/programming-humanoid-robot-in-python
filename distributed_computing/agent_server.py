@@ -19,41 +19,72 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '
 from inverse_kinematics import InverseKinematicsAgent
 
 
+
+# Create server
+
+from SimpleXMLRPCServer import SimpleXMLRPCServer
+
+
+#Only to test xmlrpc server:
+#class XmlrpcHandler:
+#    def pow(self, from_int, to_int):
+#        return from_int**to_int
+
 class ServerAgent(InverseKinematicsAgent):
     '''ServerAgent provides RPC service
     '''
     # YOUR CODE HERE
-    
+              
     def get_angle(self, joint_name):
         '''get sensor value of given joint'''
+        print("Get angle")
+        return self.perception.joint[joint_name]
         # YOUR CODE HERE
     
     def set_angle(self, joint_name, angle):
         '''set target angle of joint for PID controller
         '''
+        print("Set angle")
+        self.target_joints[joint_name] = angle
         # YOUR CODE HERE
 
     def get_posture(self):
         '''return current posture of robot'''
+        print("Get posture")
+        return self.recognize_posture()
         # YOUR CODE HERE
 
     def execute_keyframes(self, keyframes):
         '''excute keyframes, note this function is blocking call,
         e.g. return until keyframes are executed
         '''
+
         # YOUR CODE HERE
 
     def get_transform(self, name):
         '''get transform with given name
         '''
+        print("Get transform")
+        return self.transforms[name]    
         # YOUR CODE HERE
 
     def set_transform(self, effector_name, transform):
         '''solve the inverse kinematics and control joints use the results
         '''
+        print("Set transform")
+        self.transform[effector_name] = transform 
         # YOUR CODE HERE
 
 if __name__ == '__main__':
     agent = ServerAgent()
+    print("Start Server")
+    server = SimpleXMLRPCServer(("localhost", 8000), allow_none = True)
+    server.register_instance(agent)
+    #server.register_instance(XmlrpcHandler)
+    print("XMLRPC-Server listening to http://localhost:8000.")
+    print("Shut down with STRG+C")
+    server.register_introspection_functions()
+    server.register_multicall_functions()
+    server.serve_forever()
+    
     agent.run()
-
