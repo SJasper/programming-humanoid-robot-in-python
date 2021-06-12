@@ -13,14 +13,19 @@
 
 # add PYTHONPATH
 import os
+from os import listdir
+
 import sys
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'kinematics'))
 
 from inverse_kinematics import InverseKinematicsAgent
+from keyframes import *
+from SimpleXMLRPCServer import SimpleXMLRPCServer
 
 import time
-from SimpleXMLRPCServer import SimpleXMLRPCServer
 import threading
+import numpy as np
+import pickle
 
 class ServerAgent(InverseKinematicsAgent):
     '''ServerAgent provides RPC service
@@ -40,30 +45,44 @@ class ServerAgent(InverseKinematicsAgent):
         self.target_joints[joint_name] = angle
         # YOUR CODE HERE
 
-    def get_posture(self):
+    def get_posture(self):                       #simply used code from joint_control to detect posture
         '''return current posture of robot'''
         print("Get posture")
-        
-        #return self.recognize_posture()
-        return self.posture()
-        # YOUR CODE HERE
+        self.posture = 'unknown'
+        file = 'robot_pose.pkl'
+        self.posture_classifier =  pickle.load(open(file))  # LOAD YOUR CLASSIFIER
+        file = '../joint_control/robot_pose_data'
+        current_angles = np.zeros((1,10))
+        joints =['LHipYawPitch','LHipRoll','LHipPitch','LKneePitch','RHipYawPitch','RHipRoll','RHipPitch','RKneePitch'] 
+        #use joints and angles given in learn_posture.ibpyn 
+        for i in range(len(joints)):
+            current_angles[0][i] = self.perception.joint[joints[i]]
+        current_angles[0][8] = self.perception.imu[0]
+        current_angles[0][9] = self.perception.imu[1]
+        prediction = self.posture_classifier.predict(current_angles)
+        posture = listdir(file)[prediction[0]]
+        return posture 
+        #return self.recognize_posture()    #not working
 
+        
     def execute_keyframes(self, keyframes):
         '''excute keyframes, note this function is blocking call,
         e.g. return until keyframes are executed
         '''
         print("Execute keyframes")
-        
-        self.keyframes = keyframes
-        #self.angle_interpolation(keyframes, self.perception)
-        #while True:
-        #    if self.keyframes == {}:
-        #        break
-        #    print(len(keyframes))
-        #    print(len(keyframes[1]))
-        #    print(keyframes[1])
-        #self.run() 
+        self.set_time = False 
 
+        if callable(keyframes):
+            keys = keyframes()
+            self.keyframes = keys
+        else:
+            self.keyframes = keyframes
+
+        time.sleep(max(map(max,self.keyframes[1]))+4) #look for the max value in times array and wait so long
+           
+        return True
+
+        
     def get_transform(self, name):
         '''get transform with given name
         '''
@@ -75,24 +94,22 @@ class ServerAgent(InverseKinematicsAgent):
         '''solve the inverse kinematics and control joints use the results
         '''
         print("Set transform")
-        self.transform[effector_name] = transform  
+
+        super(ServerAgent, self).set_transforms(effector_name, transform)  
         # YOUR CODE HERE
 
 if __name__ == '__main__':
     agent = ServerAgent()
     print("Start Server")
-    # Create server
+
     server = SimpleXMLRPCServer(("localhost", 8000), allow_none = True)
     server.register_instance(agent)
-    #server.register_instance(XmlrpcHandler)
+
     print("XMLRPC-Server listening to http://localhost:8000.")
     print("Shut down with STRG+C")
     server.register_introspection_functions()
     server.register_multicall_functions()
     
-    #server.serve_forever()
-    #tried to implement threading
     thread = threading.Thread(target=server.serve_forever)  
     thread.start()
-    
     agent.run()

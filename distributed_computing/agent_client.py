@@ -9,8 +9,8 @@
 import weakref
 import xmlrpc.client
 import threading
-from keyframes import wipe_forehead
-
+from keyframes import *
+import numpy as np
 class PostHandler(object):
     '''the post hander wraps function to be excuted in paralle
     '''
@@ -81,12 +81,14 @@ class ClientAgent(object):
 if __name__ == '__main__':
     agent = ClientAgent()
     # TEST CODE HERE
-    print(agent.get_angle('HeadPitch'))     #works perfekt
-    print(agent.get_angle('LShoulderRoll'))     #works perfekt
-    agent.set_angle('LShoulderRoll',1)     # works perfekt
-    print(agent.get_angle('LShoulderRoll'))     #works perfekt
-
-    print(agent.get_posture()) #returns error
-
-    #agent.execute_keyframes(wipe_forehead()) #not executing function and causes crash
-
+    #print(agent.get_angle('HeadPitch'))         #works good
+    #print(agent.get_angle('LShoulderRoll'))     #works good
+    #agent.set_angle('LShoulderRoll',1)          #works good
+    #print(agent.get_angle('LShoulderRoll'))     #works good
+    agent.execute_keyframes(wipe_forehead())     #now works good
+    #agent.execute_keyframes(leftBellyToStand())     #now works good
+    #print(agent.get_posture())                      #now works too
+    #print(agent.get_transform("HeadYaw"))   
+    
+    #T = np.zeros((2,2))
+    #agent.set_transform("HeadYaw",T)    #marshalling error
